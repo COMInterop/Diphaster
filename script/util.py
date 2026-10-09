@@ -1,6 +1,15 @@
 import io
 import gzip
 import time
+import subprocess
+
+def checked_call(cmd, shell = True, **kwargs):
+    # like subprocess.call, but raises CalledProcessError on a non-zero exit;
+    # shell commands run under bash with pipefail so a failure inside a pipe is caught
+    if shell and isinstance(cmd, str):
+        cmd = 'set -o pipefail; ' + cmd
+        kwargs.setdefault('executable', '/bin/bash')
+    return subprocess.check_call(cmd, shell = shell, **kwargs)
 
 def _time():
     return time.asctime(time.localtime(time.time()))

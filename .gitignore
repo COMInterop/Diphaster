@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+bin/
+src/*.o
+src/phasing
+src/group
+thirdparty/htslib-1.16/*.o
+thirdparty/htslib-1.16/*/*.o
+thirdparty/htslib-1.16/libhts.a

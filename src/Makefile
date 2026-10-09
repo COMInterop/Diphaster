@@ -1,7 +1,7 @@
 .SUFFIXES: .cpp .c .o
 .PHONY: all clean
 
-CFALGS=-Wall -O3
+CFLAGS=-Wall -O3
 CXXFLAGS=-std=c++11 -Wall -O3
 LIBS=-lm -lz -lpthread
 INCLUDE=-I../thirdparty/htslib-1.16 -I../thirdparty -Isrc
@@ -17,18 +17,18 @@ bin:
 	$(MAKE) -C ../thirdparty/htslib-1.16
 
 phasing: phase.cpp bam_reader.cpp ../thirdparty/htslib-1.16/libhts.a $(OBJ)
-	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@ $(LIBS) -lcurl -lbz2 -llzma
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE) $^ -o $@ $(LDFLAGS) $(LIBS) -lcurl -lbz2 -llzma
 	cp phasing ../bin
 
 group: regroup.cpp bam_reader.cpp ../thirdparty/htslib-1.16/libhts.a $(OBJ)
-	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@ $(LIBS) -lcurl -lbz2 -llzma
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE) $^ -o $@ $(LDFLAGS) $(LIBS) -lcurl -lbz2 -llzma
 	cp group ../bin
 
 .cpp.o: ../thirdparty/htslib-1.16/libhts.a
-	$(CXX) -c $(CXXFLAGS) $(INCLUDE) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE) $< -o $@
 
 .c.o:
-	$(CC) -c $(CFALGS) $(INCLUDE) $< -o $@
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(INCLUDE) $< -o $@
 
 clean:
 	rm -rf *.o

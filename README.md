@@ -1,10 +1,27 @@
 # Diphase: phasing Nanopore genome assembly by integrating heterozygous variations and Hi-C data
+
+> **Fork notes (COMInterop/diphase-new).** This fork of [zhangjuncsu/Diphase](https://github.com/zhangjuncsu/Diphase) changes:
+> - Hi-C reads are mapped with **bwa-mem2** instead of `bwa mem` (same `-5` option and `-F 2316` filter).
+> - Runs on **Clair3 2.x** (PyTorch); Python and Clair3 versions float so Clair3 can be upgraded in place (`mamba update -n diphase-new clair3`). Clair3 v1 TensorFlow models do not load in v2: use the PyTorch models bundled in `${CONDA_PREFIX}/bin/models/` (e.g. `r941_prom_sup_g5014`) or convert with Clair3's model migration guide.
+> - Every external command now fails the pipeline on a non-zero exit (bash `pipefail`), instead of silently continuing with empty or truncated intermediate files.
+> - `samtools view` thread count follows `-t` instead of a hard-coded 47.
+> - `src/Makefile` honours `CPPFLAGS`/`LDFLAGS`, so it builds against a conda toolchain.
+>
+> Install:
+> ```
+> git clone https://github.com/COMInterop/diphase-new.git
+> cd diphase-new
+> mamba env create -f environment.yml
+> conda activate diphase-new
+> make -C src CC="$CC" CXX="$CXX" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
+> export PATH=$PWD/bin:$PWD/script:$PATH
+> ```
 Diphase is a phasing tool designed for diploid genome using heterozyous variations. Diphase can only work on the primary/alternate assembly format.
 ## dependencies
 Diphase is compiled with C++11. We compiled Diphase using [gcc-12.2](https://gcc.gnu.org/gcc-12/) on CentOS 7. Python3 is needed to run the pipeline. We recommend users install the dependencies using conda.
 - [minimap2](https://github.com/lh3/minimap2/)
 - [samtools](https://github.com/samtools/samtools)
-- [BWA-MEM](https://github.com/lh3/bwa)
+- [BWA-MEM2](https://github.com/bwa-mem2/bwa-mem2)
 - [Clair3](https://github.com/HKU-BAL/Clair3)
 
 Note: script ```run_clair3.sh``` should be included in PATH.

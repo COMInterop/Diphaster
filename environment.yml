@@ -1,0 +1,19 @@
+name: diphase-new
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python
+  - clair3>=2
+  - bwa-mem2
+  - minimap2=2.22
+  - samtools
+  - pigz
+  - bbmap=39.37
+  - make
+  - c-compiler
+  - cxx-compiler
+  - zlib
+  - bzip2
+  - xz
+  - libcurl

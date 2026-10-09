@@ -9,6 +9,7 @@ import resource
 import argparse
 import subprocess
 
+from util import checked_call
 from preprocessing import fsa_rename, fsa_unzip, fsa_unzip1, parse_separate, make_name_mapping, map_unzip
 from preprocessing import place_alt, filter_alt, cut_contigs, phase_contigs, setLogger, create_scaffolding
 from preprocessing import shasta2unzip_and_mapping, dual_cut, phase_contigs_dual, fix_switch2, group2
@@ -122,24 +123,24 @@ def pecat_to_unzip_format(pri_asm_fname, alt_asm_fname, pri_pol_fname, alt_pol_f
     # cmd_pri += pri_unzip_fname + ' > ' + pri_clean_fname
     logger.info('Command for primary: {}'.format(cmd_pri))
     try:
-        subprocess.call(cmd_pri, shell = True, 
+        checked_call(cmd_pri, shell = True, 
                         stdin = open(pri_unzip_fname, 'r'), 
                         stdout = open(pri_clean_fname, 'w'), 
                         stderr = sys.stderr)
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error running awk for primary {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error running awk for primary {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
     # alt_clean_fname = prefix + '.alt.clean.fasta'
     cmd_alt = 'awk \'{ if(NR%2==1) tmp=$1; if(NR%2==0 && match(tmp,"_")) print tmp"\\n"$0 }\' '
     # cmd_alt += alt_unzip_fname + ' > ' + alt_clean_fname
     logger.info('Command for alt: {}'.format(cmd_alt))
     try:
-        subprocess.call(cmd_alt, shell = True, 
+        checked_call(cmd_alt, shell = True, 
                         stdin = open(alt_unzip_fname, 'r'), 
                         stdout = open(alt_clean_fname, 'w'), 
                         stderr = sys.stderr)
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error running awk for alt {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error running awk for alt {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
     
     end_time = time.time()
@@ -191,14 +192,14 @@ def clean_unzip(pri_fname, alt_fname, prefix, dir):
 
     _check_program('samtools')
     try:
-        subprocess.call('samtools faidx ' + clean_pri_fname, shell = True, stderr = sys.stderr)
+        checked_call('samtools faidx ' + clean_pri_fname, shell = True, stderr = sys.stderr)
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error when running samtools faidx for primary {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error when running samtools faidx for primary {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
     try:
-        subprocess.call('samtools faidx ' + clean_alt_fname, shell = True, stderr = sys.stderr)
+        checked_call('samtools faidx ' + clean_alt_fname, shell = True, stderr = sys.stderr)
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error when running samtools faidx for alt {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error when running samtools faidx for alt {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
 
     end_time = time.time()
@@ -394,9 +395,9 @@ def dual_contig_cut(d1fname, d2fname, threshold, threads, prefix, dir):
         cmd_map = 'minimap2 -cx asm20 --eqx --secondary=no -t ' + str(threads) + ' ' + d1fname + ' ' + d2fname + ' -o ' + map_fname
         logger.info('Command for minimap2: {}'.format(cmd_map))
         try:
-            subprocess.call(cmd_map, shell = True, stderr = sys.stderr)
+            checked_call(cmd_map, shell = True, stderr = sys.stderr)
         except (subprocess.CalledProcessError, OSError) as e:
-            logger.error('Error running minimap2 {}'.format(e.cmd), exc_info = 1)
+            logger.error('Error running minimap2 {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
             exit(1)
 
     _file_exist(map_fname)
@@ -485,17 +486,17 @@ def mince_contigs(h1fname, h2fname, cfname, output, dir, c2fname = None):
         cmd = 'cat ' + h1fname + ' ' + h2fname + ' ' + cfname + ' ' + c2fname + ' > ' + output
     logger.info('Command for cat: {}'.format(cmd))
     try:
-        subprocess.call(cmd, shell = True, stderr = sys.stderr)
+        checked_call(cmd, shell = True, stderr = sys.stderr)
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error running cat {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error running cat {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
 
     cmd_faidx = 'samtools faidx ' + output
     logger.info('Command for samtools faidx: {}'.format(cmd_faidx))
     try:
-        subprocess.call(cmd_faidx, shell = True, stderr = sys.stderr)
+        checked_call(cmd_faidx, shell = True, stderr = sys.stderr)
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error running samtools faidx {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error running samtools faidx {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
 
     end_time = time.time()
@@ -519,7 +520,7 @@ def run_bwa(rfname, p1fname, p2fname, output, threads, dir):
 
     # _file_exist(rfname, p1fname, p2fname)
 
-    _check_program('bwa', 'samtools')
+    _check_program('bwa-mem2', 'samtools')
 
     try:
         os.chdir(dir)
@@ -538,21 +539,21 @@ def run_bwa(rfname, p1fname, p2fname, output, threads, dir):
         logger.info('threads {} must be >= 1, set to 1.'.format(threads))
         threads = 1
 
-    cmd_index = 'bwa index ' + rfname
-    logger.info('Command for bwa index: {}'.format(cmd_index))
+    cmd_index = 'bwa-mem2 index ' + rfname
+    logger.info('Command for bwa-mem2 index: {}'.format(cmd_index))
     try:
-        subprocess.call(cmd_index, shell = True, stderr = open('bwa.log', 'w'))
+        checked_call(cmd_index, shell = True, stderr = open('bwa.log', 'w'))
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error running bwa index {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error running bwa-mem2 index {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
 
-    cmd_map = 'bwa mem -5 -t ' + str(threads) + ' ' + rfname + ' ' + p1fname + ' ' + p2fname + ' | '
-    cmd_map += 'samtools view -bS -h -F 2316 -@ 47 -o ' + output
-    logger.info('Command for bwa mem: {}'.format(cmd_map))
+    cmd_map = 'bwa-mem2 mem -5 -t ' + str(threads) + ' ' + rfname + ' ' + p1fname + ' ' + p2fname + ' | '
+    cmd_map += 'samtools view -bS -h -F 2316 -@ ' + str(max(threads - 1, 1)) + ' -o ' + output
+    logger.info('Command for bwa-mem2 mem: {}'.format(cmd_map))
     try:
-        subprocess.call(cmd_map, shell = True, stderr = open('bwa.log', 'a'))
+        checked_call(cmd_map, shell = True, stderr = open('bwa.log', 'a'))
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error running bwa mem {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error running bwa-mem2 mem {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
 
     end_time = time.time()
@@ -617,13 +618,13 @@ def run_clair3(pri_fname, alt_fname, rdfname, model, stype, threads, prefix, dir
     # try:
     #     subprocess.call(cmd_map_pri, shell = True, stderr = sys.stderr)
     # except (subprocess.CalledProcessError, OSError) as e:
-    #     print('Error mapping reads to primary {}'.format(e.cmd), file = sys.stderr)
+    #     print('Error mapping reads to primary {}'.format(getattr(e, 'cmd', e)), file = sys.stderr)
     #     exit(1)
     # try:
     #     subprocess.call('samtools index ' + mapped_pri + ' -@ ' + str(threads_samtools), shell = True, 
     #                     stderr = sys.stderr)
     # except (subprocess.CalledProcessError, OSError) as e:
-    #     print('Error running samtools index {}'.format(e.cmd), file = sys.stderr)
+    #     print('Error running samtools index {}'.format(getattr(e, 'cmd', e)), file = sys.stderr)
     #     exit(1)
     
     # mapping reads to alt
@@ -635,13 +636,13 @@ def run_clair3(pri_fname, alt_fname, rdfname, model, stype, threads, prefix, dir
     # try:
     #     subprocess.call(cmd_map_alt, shell = True, stderr = sys.stderr)
     # except (subprocess.CalledProcessError, OSError) as e:
-    #     print('Error mapping reads to alt {}'.format(e.cmd), file = sys.stderr)
+    #     print('Error mapping reads to alt {}'.format(getattr(e, 'cmd', e)), file = sys.stderr)
     #     exit(1)
     # try:
     #     subprocess.call('samtools index ' + mapped_alt + ' -@ ' + str(threads_samtools), shell = True, 
     #                     stderr = sys.stderr)
     # except (subprocess.CalledProcessError, OSError) as e:
-    #     print('Error running samtools index {}'.format(e.cmd), file = sys.stderr)
+    #     print('Error running samtools index {}'.format(getattr(e, 'cmd', e)), file = sys.stderr)
     #     exit(1)
     
     def _map_reads_(ref_fname, read_fname, out_fname, err_fname):
@@ -653,9 +654,9 @@ def run_clair3(pri_fname, alt_fname, rdfname, model, stype, threads, prefix, dir
         cmd_map_x += ' | samtools sort -@ ' + str(threads_samtools) + ' - -o ' + out_fname
         logger.info('Command for mapping reads: {}'.format(cmd_map_x))
         try:
-            subprocess.call(cmd_map_x, shell = True, stderr = open(err_fname, 'w'))
+            checked_call(cmd_map_x, shell = True, stderr = open(err_fname, 'w'))
         except (subprocess.CalledProcessError, OSError) as e:
-            logger.error('Error mapping reads {}'.format(e.cmd), exc_info = 1)
+            logger.error('Error mapping reads {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
             exit(1)
         
         end_time = time.time()
@@ -682,7 +683,7 @@ def run_clair3(pri_fname, alt_fname, rdfname, model, stype, threads, prefix, dir
     # try:
     #     subprocess.call(cmd_clair3_pri, shell = True, stderr = sys.stderr)
     # except (subprocess.CalledProcessError, OSError) as e:
-    #     print('Error running clair3 for primary {}'.format(e.cmd), file = sys.stderr)
+    #     print('Error running clair3 for primary {}'.format(getattr(e, 'cmd', e)), file = sys.stderr)
     #     exit(1)
     
     alt_clair3_err_fname = 'clair3.alt.log'
@@ -691,7 +692,7 @@ def run_clair3(pri_fname, alt_fname, rdfname, model, stype, threads, prefix, dir
     # try:
     #     subprocess.call(cmd_clair3_alt, shell = True, stderr = sys.stderr)
     # except (subprocess.CalledProcessError, OSError) as e:
-    #     print('Error running clair3 for alt {}'.format(e.cmd), file = sys.stderr)
+    #     print('Error running clair3 for alt {}'.format(getattr(e, 'cmd', e)), file = sys.stderr)
     #     exit(1)
     
     def _run_clair3_x_(ref_fname, bam_fname, out_pre, err_fname):
@@ -702,23 +703,23 @@ def run_clair3(pri_fname, alt_fname, rdfname, model, stype, threads, prefix, dir
         logger.info('Command for clair3: {}'.format(cmd_clair3_x))
         if not os.path.exists(ref_fname + '.fai'):
             try:
-                subprocess.call('samtools faidx ' + ref_fname, shell = True, stderr = sys.stderr)
+                checked_call('samtools faidx ' + ref_fname, shell = True, stderr = sys.stderr)
             except (subprocess.CalledProcessError, OSError) as e:
-                logger.error('Error running samtools faidx {}'.format(e.cmd), exc_info = 1)
+                logger.error('Error running samtools faidx {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
                 exit(1)
             
         if not os.path.exists(bam_fname + '.bai'):
             try:
-                subprocess.call('samtools index ' + bam_fname + ' -@ ' + str(threads_samtools), 
+                checked_call('samtools index ' + bam_fname + ' -@ ' + str(threads_samtools), 
                                 shell = True, stderr = sys.stderr)
             except (subprocess.CalledProcessError, OSError) as e:
-                logger.error('Error running samtools index {}'.format(e.cmd), exc_info = 1)
+                logger.error('Error running samtools index {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
                 exit(1)
             
         try:
-            subprocess.call(cmd_clair3_x, shell = True, stderr = open(err_fname, 'w'))
+            checked_call(cmd_clair3_x, shell = True, stderr = open(err_fname, 'w'))
         except (subprocess.CalledProcessError, OSError) as e:
-            logger.error('Error running clair3 {}'.format(e.cmd), exc_info = 1)
+            logger.error('Error running clair3 {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
             exit(1)
 
         end_time = time.time()
@@ -842,9 +843,9 @@ def run_phasing(pair_fname, fai_fname, clair_pri_fname, clair_alt_fname, alt2pri
     
     logger.info(cmd_phase)
     try:
-        subprocess.call(cmd_phase, shell = True, stderr = open('phasing.log', 'w'))
+        checked_call(cmd_phase, shell = True, stderr = open('phasing.log', 'w'))
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error running phasing {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error running phasing {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
 
     end_time = time.time()
@@ -918,7 +919,7 @@ def group(bfname, b1fname, b2fname, h1fname, h2fname, pfname, prefix, dir):
     #     subprocess.call('mv ' + h1fname + ' ' + h1fname + '.bak', shell = True)
     #     subprocess.call('mv ' + h2fname + ' ' + h2fname + '.bak', shell = True)
     # except (subprocess.CalledProcessError, OSError) as e:
-    #     logger.error('Error running mv {}'.format(e.cmd), exc_info = 1)
+    #     logger.error('Error running mv {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
     #     exit(1)
     
     try:
@@ -936,9 +937,9 @@ def group(bfname, b1fname, b2fname, h1fname, h2fname, pfname, prefix, dir):
     logger.info(cmd_group)
 
     try:
-        subprocess.call(cmd_group, shell = True, stderr = open('group.log', 'w'))
+        checked_call(cmd_group, shell = True, stderr = open('group.log', 'w'))
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error running phasing {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error running phasing {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
     group2(h1fname, h2fname, gfname, o1fname, o2fname)
 
@@ -1644,9 +1645,9 @@ def phasing_lachesis(pair_fname, fai_fname, dir, bed1_fname, bed2_fname,
         cmd += ' --print-mat > ' + prefix + '.snp.count.txt'
 
     try:
-        subprocess.call(cmd, shell = True, stderr = open('phasing.log', 'w'))
+        checked_call(cmd, shell = True, stderr = open('phasing.log', 'w'))
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error running phasing {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error running phasing {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
 
     end = time.time()

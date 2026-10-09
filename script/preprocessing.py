@@ -11,6 +11,7 @@ import multiprocessing
 from collections import OrderedDict
 from collections import defaultdict
 
+from util import checked_call
 from util import _fa_or_fq, _load_fa, _load_fq, _load_full_fa, _load_full_fq
 
 logger = logging.getLogger()
@@ -109,22 +110,22 @@ def pecat_to_unzip(pafname, aafname, ppfname, apfname, prefix):
     cmd_pri = 'awk \'{ if(NR%2==1) tmp=$1; if(NR%2==0 && !match(tmp,"_")) print tmp"\\n"$0 }\' '
     logger.info('Command for primary: {}'.format(cmd_pri))
     try:
-        subprocess.call(cmd_pri, shell = True, 
+        checked_call(cmd_pri, shell = True, 
                         stdin = open(pri_unzip_fname, 'r'), 
                         stdout = open(pri_clean_fname, 'w'), 
                         stderr = sys.stderr)
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error running awk for primary {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error running awk for primary {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
     cmd_alt = 'awk \'{ if(NR%2==1) tmp=$1; if(NR%2==0 && match(tmp,"_")) print tmp"\\n"$0 }\' '
     logger.info('Command for alt: {}'.format(cmd_alt))
     try:
-        subprocess.call(cmd_alt, shell = True, 
+        checked_call(cmd_alt, shell = True, 
                         stdin = open(alt_unzip_fname, 'r'), 
                         stdout = open(alt_clean_fname, 'w'), 
                         stderr = sys.stderr)
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.error('Error running awk for alt {}'.format(e.cmd), exc_info = 1)
+        logger.error('Error running awk for alt {}'.format(getattr(e, 'cmd', e)), exc_info = 1)
         exit(1)
 
 def parse_separate(fname):
