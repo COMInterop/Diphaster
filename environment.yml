@@ -6,10 +6,9 @@ dependencies:
   - python
   - clair3>=2
   - bwa-mem2
-  - minimap2=2.22
+  - minimap2
   - samtools
   - pigz
-  - bbmap=39.37
   - make
   - c-compiler
   - cxx-compiler

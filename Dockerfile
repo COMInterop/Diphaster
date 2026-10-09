@@ -23,7 +23,7 @@ RUN conda config --add channels defaults
 RUN conda config --add channels bioconda
 RUN conda config --add channels conda-forge
 
-RUN conda create -n diphase python 'clair3>=2' minimap2=2.22 samtools bwa-mem2 bbmap=39.37
+RUN conda create -n diphase python 'clair3>=2' minimap2 samtools bwa-mem2
 RUN mv /opt/conda/envs/diphase/bin/models /opt/models
 RUN rm -rf /opt/conda/pkgs/* && rm -rf /root/.cache/pip
 ENV PATH=/opt/conda/envs/diphase/bin:$PATH
