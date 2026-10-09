@@ -1,4 +1,4 @@
-name: diphase-new
+name: diphaster
 channels:
   - conda-forge
   - bioconda

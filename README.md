@@ -1,18 +1,18 @@
-# Diphase: phasing Nanopore genome assembly by integrating heterozygous variations and Hi-C data
+# Diphaster: phasing Nanopore genome assembly by integrating heterozygous variations and Hi-C data
 
-> **Fork notes (COMInterop/diphase-new).** This fork of [zhangjuncsu/Diphase](https://github.com/zhangjuncsu/Diphase) changes:
+> **Fork notes (COMInterop/diphaster).** This fork of [zhangjuncsu/Diphase](https://github.com/zhangjuncsu/Diphase) changes:
 > - Hi-C reads are mapped with **bwa-mem2** instead of `bwa mem` (same `-5` option and `-F 2316` filter).
-> - Runs on **Clair3 2.x** (PyTorch); Python and Clair3 versions float so Clair3 can be upgraded in place (`mamba update -n diphase-new clair3`). Clair3 v1 TensorFlow models do not load in v2: use the PyTorch models bundled in `${CONDA_PREFIX}/bin/models/` (e.g. `r941_prom_sup_g5014`) or convert with Clair3's model migration guide.
+> - Runs on **Clair3 2.x** (PyTorch); Python and Clair3 versions float so Clair3 can be upgraded in place (`mamba update -n diphaster clair3`). Clair3 v1 TensorFlow models do not load in v2: use the PyTorch models bundled in `${CONDA_PREFIX}/bin/models/` (e.g. `r941_prom_sup_g5014`) or convert with Clair3's model migration guide.
 > - Every external command now fails the pipeline on a non-zero exit (bash `pipefail`), instead of silently continuing with empty or truncated intermediate files.
 > - `samtools view` thread count follows `-t` instead of a hard-coded 47.
 > - `src/Makefile` honours `CPPFLAGS`/`LDFLAGS`, so it builds against a conda toolchain.
 >
 > Install:
 > ```
-> git clone https://github.com/COMInterop/diphase-new.git
-> cd diphase-new
+> git clone https://github.com/COMInterop/diphaster.git
+> cd diphaster
 > mamba env create -f environment.yml
-> conda activate diphase-new
+> conda activate diphaster
 > make -C src CC="$CC" CXX="$CXX" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
 > export PATH=$PWD/bin:$PWD/script:$PATH
 > ```
