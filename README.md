@@ -1,3 +1,4 @@
+# **NOTE: beta version, not fully sorted**
 # Diphaster: Diphase updated to use Clair3 v2.0.3 and BWA-MEM2 in Python 3.11. No other changes have been made. The below is from the original:
 
 # Diphase: phasing Nanopore genome assembly by integrating heterozygous variations and Hi-C data
