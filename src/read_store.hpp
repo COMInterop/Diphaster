@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include "seq_io.hpp"
 #include "sequence.hpp"
 

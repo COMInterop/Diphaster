@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include "matrix.hpp"
 #include "utility.hpp"
 #include "read_store.hpp"

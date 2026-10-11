@@ -3,6 +3,7 @@
 // logger class for logging information to console and file simultaneously 
 // if file is specified by user
 
+#include <cstdint>
 #include <mutex>
 #include <string>
 #include <fstream>

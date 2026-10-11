@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include "htslib/hts.h"
 #include "htslib/sam.h"
 

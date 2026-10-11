@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include "bam_reader.hpp"
 #include "logger.hpp"
 #include "matrix.hpp"
