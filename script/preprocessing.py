@@ -1043,7 +1043,7 @@ def phase_contigs_dual(rfname, h1bfname, h2bfname, c1bfname, c2bfname, mfname, s
 
 def map_separate(pfname, afname, fmt):
     errfname = pfname + '.err'
-    cmd = ['minimap2', '-x', 'asm20', '--secondary=no', '--eqx', '--end-bonus', '100', '-U', '0,2000', '-f', '0.00001']
+    cmd = ['minimap2', '-x', 'asm20', '-k19', '-w19', '--secondary=no', '--eqx', '--end-bonus', '100', '-U', '0,2000', '-f', '0.00001']
     if fmt.lower() == 'sam':
         cmd.extend(['-a'])
     elif fmt.lower() == 'paf':

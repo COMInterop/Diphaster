@@ -392,7 +392,7 @@ def dual_contig_cut(d1fname, d2fname, threshold, threads, prefix, dir):
     logger.info('{} Working directory {}'.format(sys._getframe().f_code.co_name, os.getcwd()))
 
     if not _test_file(dir, map_fname):
-        cmd_map = 'minimap2 -cx asm20 --eqx --secondary=no -t ' + str(threads) + ' ' + d1fname + ' ' + d2fname + ' -o ' + map_fname
+        cmd_map = 'minimap2 -cx asm20 -k19 -w19 --eqx --secondary=no -t ' + str(threads) + ' ' + d1fname + ' ' + d2fname + ' -o ' + map_fname
         logger.info('Command for minimap2: {}'.format(cmd_map))
         try:
             checked_call(cmd_map, shell = True, stderr = sys.stderr)
@@ -607,7 +607,7 @@ def run_clair3(pri_fname, alt_fname, rdfname, model, stype, threads, prefix, dir
     else:
         logger.error('Unregonized sequence type {}, [clr | hifi | ont]'.format(stype), exc_info = 1)
         exit(1)
-    cmd_map += ' --secondary=no -t ' + str(threads)
+    cmd_map += ' -k19 -w19 --secondary=no -t ' + str(threads)
 
     # mapping reads to primary 
     mapped_pri = prefix + '.rd2pri.sorted.bam'
